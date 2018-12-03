@@ -21,6 +21,9 @@ public class Graph {
     private Mat mask;
     private byte[] maskBuff;
 
+    public static Mat debugPath;
+    private static byte[] debugPathBuff;
+
     private enum PointType {
         START, END, ORDINARY, PATH
     }
@@ -46,11 +49,11 @@ public class Graph {
                 neighbors.add(field[x][y-1]);
             }
 
-            if (x < restrictX && y+1 < height) {
+            if ((x < restrictX && y+1 < height) || (x > restrictX && y+1 < restrictY)){
                 neighbors.add(field[x][y+1]);
             }
 
-            if (y < restrictY && x+1 < width) {
+            if ((y < restrictY && x+1 < width) || (y > restrictY && x+1 < restrictX)) {
                 neighbors.add(field[x+1][y]);
             }
 
@@ -111,6 +114,11 @@ public class Graph {
         }
 
         dijkstra(queue);
+        if (TextureSynthesizer.debug) {
+            debugPath = Mat.ones(img1.size(), img1.type()).setTo(plusScalar);
+            debugPathBuff = new byte[(int) img1.total() * channels];
+            debugPath.get(0, 0, debugPathBuff);
+        }
         recoverPath();
     }
 
@@ -125,21 +133,32 @@ public class Graph {
             }
         }
 
-        end.type = PointType.PATH;
         do {
+            if (TextureSynthesizer.debug)
+                setEmpty(end.x, end.y, debugPathBuff);
+
             end.type = PointType.PATH;
             end = end.prev;
         } while(end.type != PointType.START);
         end.type = PointType.PATH;
+
+        if (TextureSynthesizer.debug)
+            debugPath.put(0, 0, debugPathBuff);
     }
 
     private void dijkstra(PriorityQueue<Point> queue) {
         while (!queue.isEmpty()) {
             Point p = queue.poll();
+            p.visited = true;
             for (Point neighbor : p.getNeighbors()) {
+                int d = p.distance + getDifference(neighbor.x, neighbor.y);
                 if (!neighbor.visited) {
-                    neighbor.visited = true;
                     neighbor.distance = p.distance + getDifference(neighbor.x, neighbor.y);
+                    neighbor.prev = p;
+                    queue.add(neighbor);
+                } else if (neighbor.distance > d) {
+                    queue.remove(neighbor);
+                    neighbor.distance = d;
                     neighbor.prev = p;
                     queue.add(neighbor);
                 }
@@ -147,9 +166,9 @@ public class Graph {
         }
     }
 
-    private void setEmpty(int x, int y) {
+    private void setEmpty(int x, int y, byte[] buff) {
         for (int i = 0; i < channels; i++) {
-            maskBuff[(y*width + x)*channels + i] = 0;
+            buff[(y*width + x)*channels + i] = 0;
         }
     }
 
@@ -177,11 +196,11 @@ public class Graph {
         stack.push(field[0][0]);
         while (!stack.empty()) {
             Point p = stack.pop();
-            setEmpty(p.x, p.y);
+            setEmpty(p.x, p.y, maskBuff);
             for (Point neighbor : p.getNeighbors()) {
                 if (!neighbor.visited && neighbor.type != PointType.PATH) {
-                    stack.push(neighbor);
                     neighbor.visited = true;
+                    stack.push(neighbor);
                 }
             }
         }

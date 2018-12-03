@@ -14,14 +14,22 @@ public class TextureSynthesizer {
     private int resultHeight = 500;
     private Mat outputTexture;
     private int blockSide = 64;
-    private int mergeLength = blockSide / 6;
+    private int mergeLength = blockSide / 3;
     private double tolerance = 0.1;
     private List<Mat> blocks = new ArrayList<>();
     private Random random = new Random();
 
+    static boolean debug = false;
+    private Mat debugMask;
+    private Mat debugCutPath;
+
     public static void main(String[] args) {
         TextureSynthesizer ts = new TextureSynthesizer();
         Imgcodecs.imwrite("output.jpg", ts.synthesize());
+        if (debug) {
+            Imgcodecs.imwrite("mask.jpg", ts.debugMask);
+            Imgcodecs.imwrite("path2.jpg", ts.debugCutPath);
+        }
     }
 
     private void splitInputImage() {
@@ -56,6 +64,10 @@ public class TextureSynthesizer {
     private Mat synthesize() {
         inputTexture = Imgcodecs.imread("textures/cells.jpg");
         outputTexture = new Mat(resultHeight, resultWidth, inputTexture.type());
+        if (debug) {
+            debugMask = new Mat(resultHeight, resultWidth, inputTexture.type());
+            debugCutPath = new Mat(resultHeight, resultWidth, inputTexture.type());
+        }
         splitInputImage();
 
         // TODO: print percentage
@@ -169,17 +181,20 @@ public class TextureSynthesizer {
         Rect replacedLoc = new Rect(placeX, placeY, block.width(), block.height());
         Mat replacedROI = new Mat(outputTexture, replacedLoc);
         Mat mask = calculateMergeMask(x, y, block);
-        /*
-        if (x > 50 && x < 100) {
-            mask.copyTo(replacedROI);
-        } else */
         block.copyTo(replacedROI, mask);
+        if (debug) {
+            Mat debugMaskROI = new Mat(debugMask, replacedLoc);
+            mask.copyTo(debugMaskROI);
+            Mat debugCutPathROI = new Mat(debugCutPath, replacedLoc);
+            // TODO: remove restrictions
+            if (x >= blockSide && y >= blockSide) Graph.debugPath.copyTo(debugCutPathROI);
+        }
 
         return new int[] {placeX + block.width(), placeY + block.height()};
     }
 
+    // TODO: remove this scalar
     private Scalar plusScalar = new Scalar(255, 255, 255, 255);
-    private Scalar minusScalar = new Scalar(0, 0, 0, 0);
     private Mat calculateMergeMask(int imgX, int imgY, Mat block) {
         int startX = imgX, starY = imgY;
         if (imgX > mergeLength && imgY > mergeLength) {
