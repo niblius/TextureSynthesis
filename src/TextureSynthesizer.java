@@ -1,6 +1,7 @@
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.util.*;
@@ -12,7 +13,7 @@ public class TextureSynthesizer {
     private int resultWidth = 500;
     private int resultHeight = 500;
     private Mat outputTexture;
-    private int blockSide = 32;
+    private int blockSide = 64;
     private int mergeLength = blockSide / 6;
     private double tolerance = 0.1;
     private List<Mat> blocks = new ArrayList<>();
@@ -57,6 +58,7 @@ public class TextureSynthesizer {
         outputTexture = new Mat(resultHeight, resultWidth, inputTexture.type());
         splitInputImage();
 
+        // TODO: print percentage
         int x = 0, y = 0;
         int[] newXY = new int[] {0, 0};
         while (newXY[0] != resultWidth || newXY[1] != resultHeight) {
@@ -67,6 +69,7 @@ public class TextureSynthesizer {
                 y = newXY[1];
                 x = 0;
             }
+            System.out.println("y: " + y);
         }
 
         return outputTexture;
@@ -75,19 +78,17 @@ public class TextureSynthesizer {
     // TODO: maybe do caching.
     private Mat getBestMatch(int x, int y) {
         class DiffPair implements Comparable<DiffPair> {
-            double diffNorm;
-            Mat raster;
-            public DiffPair(double norm, Mat r) {
+            private double diffNorm;
+            private Mat block;
+            private DiffPair(double norm, Mat r) {
                 diffNorm = norm;
-                raster = r;
+                block = r;
             }
             @Override
             public int compareTo(DiffPair o) {
                 return Double.compare(diffNorm, o.diffNorm);
             }
         }
-        // calculate error for all blocks and place them in sorted order
-        // pick random block within error tolerance*bestBlockError
 
         PriorityQueue<DiffPair> queue = new PriorityQueue<>(blocks.size());
         for (Mat r : blocks) {
@@ -101,7 +102,7 @@ public class TextureSynthesizer {
         while (!queue.isEmpty()) {
             DiffPair d = queue.poll();
             if (d.diffNorm <= threshold) {
-                pickList.add(d.raster);
+                pickList.add(d.block);
             } else {
                 break;
             }
@@ -157,14 +158,46 @@ public class TextureSynthesizer {
     }
 
     private int[] placeBlock(int x, int y, Mat block) {
-        block = limitBlock(x, y, block);
+        int placeX = x, placeY = y;
+        if (x > mergeLength)
+            placeX -= mergeLength;
+        if (y > mergeLength)
+            placeY -= mergeLength;
 
-        Rect replacedLoc = new Rect(x, y, block.width(), block.height());
+        block = limitBlock(placeX, placeY, block);
+
+        Rect replacedLoc = new Rect(placeX, placeY, block.width(), block.height());
         Mat replacedROI = new Mat(outputTexture, replacedLoc);
-        // TODO: When replacing merging loc use mask!
-        block.copyTo(replacedROI);
+        Mat mask = calculateMergeMask(x, y, block);
+        /*
+        if (x > 50 && x < 100) {
+            mask.copyTo(replacedROI);
+        } else */
+        block.copyTo(replacedROI, mask);
 
-        return new int[] {x + block.width(), y + block.height()};
+        return new int[] {placeX + block.width(), placeY + block.height()};
+    }
+
+    private Scalar plusScalar = new Scalar(255, 255, 255, 255);
+    private Scalar minusScalar = new Scalar(0, 0, 0, 0);
+    private Mat calculateMergeMask(int imgX, int imgY, Mat block) {
+        int startX = imgX, starY = imgY;
+        if (imgX > mergeLength && imgY > mergeLength) {
+            startX -= mergeLength;
+            starY -= mergeLength;
+            Rect imgROI = new Rect(startX, starY, block.width(), block.height());
+            Mat img = new Mat(outputTexture, imgROI);
+            Graph graph = new Graph(img, block, mergeLength, mergeLength, mergeLength);
+            return graph.buildMask();
+        } else if (imgX > mergeLength) {
+            startX -= mergeLength;
+        } else if (imgY > mergeLength) {
+            starY -= mergeLength;
+        }
+
+        Mat mask = Mat.ones(block.size(), block.type()).setTo(plusScalar);
+
+        return mask;
     }
 
 }
