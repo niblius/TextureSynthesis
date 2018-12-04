@@ -1,7 +1,6 @@
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.util.*;
@@ -10,16 +9,16 @@ public class TextureSynthesizer {
     static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
     private Mat inputTexture;
-    private int resultWidth = 500;
-    private int resultHeight = 500;
+    private int resultWidth = 256;
+    private int resultHeight = 256;
     private Mat outputTexture;
-    private int blockSide = 64;
+    static int blockSide = 50;
     private int mergeLength = blockSide / 3;
     private double tolerance = 0.1;
     private List<Mat> blocks = new ArrayList<>();
     private Random random = new Random();
 
-    static boolean debug = false;
+    static boolean debug = true;
     private Mat debugMask;
     private Mat debugCutPath;
 
@@ -186,33 +185,36 @@ public class TextureSynthesizer {
             Mat debugMaskROI = new Mat(debugMask, replacedLoc);
             mask.copyTo(debugMaskROI);
             Mat debugCutPathROI = new Mat(debugCutPath, replacedLoc);
-            // TODO: remove restrictions
-            if (x >= blockSide && y >= blockSide) Graph.debugPath.copyTo(debugCutPathROI);
+            if (Graph.debugPath != null)
+                Graph.debugPath.copyTo(debugCutPathROI);
+            else
+                debugCutPathROI.setTo(Graph.plusScalar);
         }
 
         return new int[] {placeX + block.width(), placeY + block.height()};
     }
 
-    // TODO: remove this scalar
-    private Scalar plusScalar = new Scalar(255, 255, 255, 255);
     private Mat calculateMergeMask(int imgX, int imgY, Mat block) {
-        int startX = imgX, starY = imgY;
+        int startX = imgX, starY = imgY, restrictX = 0, restrictY = 0;
         if (imgX > mergeLength && imgY > mergeLength) {
             startX -= mergeLength;
             starY -= mergeLength;
-            Rect imgROI = new Rect(startX, starY, block.width(), block.height());
-            Mat img = new Mat(outputTexture, imgROI);
-            Graph graph = new Graph(img, block, mergeLength, mergeLength, mergeLength);
-            return graph.buildMask();
+            restrictX = mergeLength;
+            restrictY = mergeLength;
         } else if (imgX > mergeLength) {
             startX -= mergeLength;
+            restrictX = mergeLength;
         } else if (imgY > mergeLength) {
             starY -= mergeLength;
+            restrictY = mergeLength;
+        } else {
+            return Mat.ones(block.size(), block.type()).setTo(Graph.plusScalar);
         }
 
-        Mat mask = Mat.ones(block.size(), block.type()).setTo(plusScalar);
-
-        return mask;
+        Rect imgROI = new Rect(startX, starY, block.width(), block.height());
+        Mat img = new Mat(outputTexture, imgROI);
+        Graph graph = new Graph(img, block, restrictX, restrictY);
+        return graph.buildMask();
     }
 
 }

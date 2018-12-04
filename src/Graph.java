@@ -16,8 +16,7 @@ public class Graph {
     private int height;
     private int restrictX;
     private int restrictY;
-    private int mergeLength;
-    private Point[][] field;
+    private static Point[][] field;
     private Mat mask;
     private byte[] maskBuff;
 
@@ -66,8 +65,7 @@ public class Graph {
         }
     }
 
-    public Graph(Mat img1, Mat img2, int restrictX, int restrictY, int mergeLength) {
-        this.mergeLength = mergeLength;
+    public Graph(Mat img1, Mat img2, int restrictX, int restrictY) {
         this.restrictX = restrictX;
         this.restrictY = restrictY;
         this.img1 = img1;
@@ -79,9 +77,20 @@ public class Graph {
         buff2 = new byte[(int)img1.total() * channels];
         img1.get(0, 0, buff1);
         img2.get(0, 0, buff2);
+
+        if (field == null) {
+            int bs = TextureSynthesizer.blockSide;
+            field = new Point[bs][bs];
+            for (int x = 0; x < bs; x++) {
+                for (int y = 0; y < bs; y++) {
+                    field[x][y] = new Point(x, y);
+                }
+            }
+        }
     }
 
     private int getDifference(int x, int y) {
+        // TODO: use scaled colors
         int norm = 0;
         for (int i = 0; i < channels; i++) {
             double diff = buff1[(y*width + x)*channels + i] - buff2[(y*width + x)*channels + i];
@@ -90,28 +99,48 @@ public class Graph {
         return norm;
     }
 
+    private void resetPoint(Point p) {
+        p.visited = false;
+        p.distance = 0;
+        p.prev = null;
+        p.type = PointType.ORDINARY;
+    }
+
     private void pathSearch() {
-        // TODO: use array of arrays, because we won't need entire matrix
-        // only its small part
-        field = new Point[width][height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                field[x][y] = new Point(x, y);
+        if (restrictX != 0) {
+            for (int x = 0; x < restrictX; x++) {
+                for (int y = 0; y < height; y++) {
+                    resetPoint(field[x][y]);
+                    // field[x][y] = new Point(x, y);
+                }
             }
         }
 
-        for (int y = 0; y < mergeLength; y++) {
-            field[width-1][y].type = PointType.END;
+        if (restrictY != 0) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < restrictY; y++) {
+                    resetPoint(field[x][y]);
+                    //field[x][y] = new Point(x, y);
+                }
+            }
         }
 
+        /*
+        int bs = TextureSynthesizer.blockSide;
+        for (int x = 0; x < bs; x++) {
+            for (int y = 0; y < bs; y++) {
+                field[x][y].visited = false;
+                field[x][y].distance = 0;
+                field[x][y].x = x;
+                field[x][y].y = y;
+                field[x][y].type = PointType.ORDINARY;
+                field[x][y].prev = null;
+            }
+        }*/
+
+
         PriorityQueue<Point> queue = new PriorityQueue<>();
-        for (int x = 0; x < mergeLength; x++) {
-            Point p = field[x][height-1];
-            p.type = PointType.START;
-            p.distance = getDifference(p.x, p.y);
-            p.visited = true;
-            queue.add(p);
-        }
+        setupStartEnd(queue);
 
         dijkstra(queue);
         if (TextureSynthesizer.debug) {
@@ -122,16 +151,62 @@ public class Graph {
         recoverPath();
     }
 
-    private void recoverPath() {
-        Point end = null;
-        int min = Integer.MAX_VALUE;
-        for (int y = 0; y < mergeLength; y++) {
-            Point p = field[width-1][y];
-            if (p.distance < min) {
-                min = p.distance;
-                end = p;
+    private void setupStartEnd(PriorityQueue<Point> queue) {
+        if (restrictY != 0) {
+            for (int y = 0; y < restrictY; y++) {
+                field[width-1][y].type = PointType.END;
+            }
+        } else {
+            for (int x = 0; x < restrictX; x++) {
+                field[x][0].type = PointType.END;
             }
         }
+
+        if (restrictX != 0) {
+            for (int x = 0; x < restrictX; x++) {
+                Point p = field[x][height - 1];
+                p.type = PointType.START;
+                p.distance = getDifference(p.x, p.y);
+                p.visited = true;
+                queue.add(p);
+            }
+        } else {
+            for (int y = 0; y < restrictY; y++) {
+                Point p = field[0][y];
+                p.type = PointType.START;
+                p.distance = getDifference(p.x, p.y);
+                p.visited = true;
+                queue.add(p);
+            }
+        }
+    }
+
+    private Point findEnd() {
+        Point end = null;
+        int min = Integer.MAX_VALUE;
+        if (restrictY != 0) {
+            for (int y = 0; y < restrictY; y++) {
+                Point p = field[width-1][y];
+                if (p.distance < min) {
+                    min = p.distance;
+                    end = p;
+                }
+            }
+        } else {
+            for (int x = 0; x < restrictX; x++) {
+                Point p = field[x][0];
+                if (p.distance < min) {
+                    min = p.distance;
+                    end = p;
+                }
+            }
+        }
+
+        return end;
+    }
+
+    private void recoverPath() {
+        Point end = findEnd();
 
         do {
             if (TextureSynthesizer.debug)
@@ -172,16 +247,26 @@ public class Graph {
         }
     }
 
-    private static final Scalar plusScalar = new Scalar(255, 255, 255, 255);
+    static final Scalar plusScalar = new Scalar(255, 255, 255, 255);
     public Mat buildMask() {
         pathSearch();
         mask = Mat.ones(img1.size(), img1.type()).setTo(plusScalar);
         maskBuff = new byte[(int)img1.total() * channels];
         mask.get(0, 0, maskBuff);
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                field[x][y].visited = false;
+        if (restrictX != 0) {
+            for (int x = 0; x < restrictX; x++) {
+                for (int y = 0; y < height; y++) {
+                    field[x][y].visited = false;
+                }
+            }
+        }
+
+        if (restrictY != 0) {
+            for (int x = restrictX; x < width; x++) {
+                for (int y = 0; y < restrictY; y++) {
+                    field[x][y].visited = false;
+                }
             }
         }
 
@@ -201,6 +286,9 @@ public class Graph {
                 if (!neighbor.visited && neighbor.type != PointType.PATH) {
                     neighbor.visited = true;
                     stack.push(neighbor);
+                } else if (neighbor.type == PointType.PATH) {
+                    neighbor.visited = true;
+                    setEmpty(neighbor.x, neighbor.y, maskBuff);
                 }
             }
         }
