@@ -2,17 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e0ee8c0-399e-4c0f-a54d-a28e2a784ba2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mask.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/mask.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/TextureSynthesis/Graph$Point.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TextureSynthesis/Graph$Point.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/TextureSynthesis/Graph$PointType.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TextureSynthesis/Graph$PointType.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/TextureSynthesis/Graph.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TextureSynthesis/Graph.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/TextureSynthesis/TextureSynthesizer$1DiffPair.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TextureSynthesis/TextureSynthesizer$1DiffPair.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/TextureSynthesis/TextureSynthesizer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/TextureSynthesis/TextureSynthesizer.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/output.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/output.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/path2.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/path2.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Graph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Graph.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TextureSynthesizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TextureSynthesizer.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,9 +19,10 @@
       <usages-collector id="statistics.lifecycle.project">
         <counts>
           <entry key="project.closed" value="1" />
+          <entry key="project.open.time.1" value="1" />
           <entry key="project.open.time.17" value="1" />
           <entry key="project.open.time.4" value="1" />
-          <entry key="project.opened" value="2" />
+          <entry key="project.opened" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -47,12 +41,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="13290" />
+          <entry key="java" value="14167" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="13290" />
+          <entry key="JAVA" value="14167" />
         </counts>
       </usages-collector>
     </session>
@@ -65,7 +59,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/TextureSynthesizer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2958">
+            <state relative-caret-position="2992">
               <caret line="181" selection-start-line="181" selection-end-line="181" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -77,8 +71,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Graph.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-429">
-              <caret line="191" column="28" lean-forward="true" selection-start-line="191" selection-start-column="28" selection-end-line="191" selection-end-column="28" />
+            <state relative-caret-position="151">
+              <caret line="271" column="48" selection-start-line="271" selection-start-column="48" selection-end-line="271" selection-end-column="48" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1610#1611#0" expanded="true" />
@@ -99,13 +93,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>place</find>
-      <find>recover</find>
-      <find>placeb</find>
-      <find>fill</find>
-      <find>restrictX</find>
-      <find>//</find>
-      <find>sete</find>
       <find>debug</find>
       <find>mer</find>
       <find>merge</find>
@@ -129,6 +116,13 @@
       <find>Point</find>
       <find>dijk</find>
       <find>static</find>
+      <find>//</find>
+      <find>getDi</find>
+      <find>getdiff</find>
+      <find>get</find>
+      <find>getdif</find>
+      <find>getN</find>
+      <find>getn</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -252,11 +246,12 @@
       <updated>1543734089978</updated>
       <workItem from="1543734093014" duration="40517000" />
       <workItem from="1543885349502" duration="1984000" />
+      <workItem from="1543888926834" duration="4577000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="42501000" />
+    <option name="totallyTimeSpent" value="47078000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-18" width="1366" height="767" extended-state="0" />
@@ -272,7 +267,7 @@
       <window_info anchor="bottom" id="Version Control" order="0" show_stripe_button="false" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.33641976" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.30555555" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.30709878" />
       <window_info anchor="bottom" id="Terminal" order="4" />
       <window_info anchor="bottom" id="Event Log" order="5" side_tool="true" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -335,46 +330,41 @@
           <properties class="org.opencv.core.CvException" package="org.opencv.core" />
           <option name="timeStamp" value="4" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/Graph.java</url>
-          <line>109</line>
-          <properties />
-          <option name="timeStamp" value="57" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/Graph.java</url>
-          <line>141</line>
-          <properties />
-          <option name="timeStamp" value="61" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/Graph.java</url>
-          <line>208</line>
-          <properties />
-          <option name="timeStamp" value="62" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <condition expression="p.type == PointType.END" language="JAVA" />
-          <url>file://$PROJECT_DIR$/src/Graph.java</url>
-          <line>226</line>
-          <properties />
-          <option name="timeStamp" value="64" />
-        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="Application">
-        <watch expression="((Point)this[0]).visited" custom="Graph.Point" />
-      </configuration>
-    </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="breakpointCondition">
       <expression>
+        <expression-string>this.x == 15 &amp;&amp; this.y == 0</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>this.x == 15 &amp;&amp; this.y =0 0</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>this.x == 15 &amp;&amp; this.y = 0</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>queue.isEmpty()</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>p.type == PointType.END</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>p.type == PointType.START</expression-string>
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -393,31 +383,6 @@
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>neighbor.type == PointType.END</expression-string>
-        <language-id>JAVA</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>height != 50</expression-string>
-        <language-id>JAVA</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>width != 50</expression-string>
-        <language-id>JAVA</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>e</expression-string>
-        <language-id>JAVA</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>p.x &gt;= restrictX &amp;&amp; p.y &gt;= restrictY</expression-string>
-        <language-id>JAVA</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
     <expressions id="watch">
       <expression>
@@ -427,6 +392,58 @@
       </expression>
       <expression>
         <expression-string>field[0][49]</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+    <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>field[15][0].y</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[15][0].x</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[15][0].getNeighbors()</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[15][0]</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[16][0]</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[16][2]</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[15][2]</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[10][2]</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[30][2]</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>field[40][2]</expression-string>
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -475,7 +492,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/TextureSynthesizer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2958">
+        <state relative-caret-position="2992">
           <caret line="181" selection-start-line="181" selection-end-line="181" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -485,8 +502,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Graph.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-429">
-          <caret line="191" column="28" lean-forward="true" selection-start-line="191" selection-start-column="28" selection-end-line="191" selection-end-column="28" />
+        <state relative-caret-position="151">
+          <caret line="271" column="48" selection-start-line="271" selection-start-column="48" selection-end-line="271" selection-end-column="48" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1610#1611#0" expanded="true" />

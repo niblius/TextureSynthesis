@@ -39,30 +39,31 @@ public class Graph {
             this.y = y;
         }
 
-        List<Point> getNeighbors() {
-            ArrayList<Point> neighbors = new ArrayList<>(4);
-            if (x-1 >= 0) {
-                neighbors.add(field[x-1][y]);
-            }
-            if (y-1 >= 0) {
-                neighbors.add(field[x][y-1]);
-            }
-
-            if ((x < restrictX && y+1 < height) || (x > restrictX && y+1 < restrictY)){
-                neighbors.add(field[x][y+1]);
-            }
-
-            if ((y < restrictY && x+1 < width) || (y > restrictY && x+1 < restrictX)) {
-                neighbors.add(field[x+1][y]);
-            }
-
-            return neighbors;
-        }
-
         @Override
         public int compareTo(Point o) {
             return Integer.compare(distance, o.distance);
         }
+    }
+
+    List<Point> getNeighbors(Point p) {
+        ArrayList<Point> neighbors = new ArrayList<>(4);
+        int x = p.x, y = p.y;
+        if (x-1 >= 0) {
+            neighbors.add(field[x-1][y]);
+        }
+        if (y-1 >= 0) {
+            neighbors.add(field[x][y-1]);
+        }
+
+        if ((x < restrictX && y+1 < height) || (x > restrictX && y+1 < restrictY)){
+            neighbors.add(field[x][y+1]);
+        }
+
+        if ((y < restrictY && x+1 < width) || (y > restrictY && x+1 < restrictX)) {
+            neighbors.add(field[x+1][y]);
+        }
+
+        return neighbors;
     }
 
     public Graph(Mat img1, Mat img2, int restrictX, int restrictY) {
@@ -101,8 +102,6 @@ public class Graph {
 
     private void resetPoint(Point p) {
         p.visited = false;
-        p.distance = 0;
-        p.prev = null;
         p.type = PointType.ORDINARY;
     }
 
@@ -111,7 +110,7 @@ public class Graph {
             for (int x = 0; x < restrictX; x++) {
                 for (int y = 0; y < height; y++) {
                     resetPoint(field[x][y]);
-                    // field[x][y] = new Point(x, y);
+                    //field[x][y] = new Point(x, y);
                 }
             }
         }
@@ -120,24 +119,10 @@ public class Graph {
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < restrictY; y++) {
                     resetPoint(field[x][y]);
-                    //field[x][y] = new Point(x, y);
+                    // field[x][y] = new Point(x, y);
                 }
             }
         }
-
-        /*
-        int bs = TextureSynthesizer.blockSide;
-        for (int x = 0; x < bs; x++) {
-            for (int y = 0; y < bs; y++) {
-                field[x][y].visited = false;
-                field[x][y].distance = 0;
-                field[x][y].x = x;
-                field[x][y].y = y;
-                field[x][y].type = PointType.ORDINARY;
-                field[x][y].prev = null;
-            }
-        }*/
-
 
         PriorityQueue<Point> queue = new PriorityQueue<>();
         setupStartEnd(queue);
@@ -152,6 +137,8 @@ public class Graph {
     }
 
     private void setupStartEnd(PriorityQueue<Point> queue) {
+        // TODO: starts from 1 because 0,0 is flood fill start point
+        // TODO: remove edges from path search, otherwise filling won't work correctly
         if (restrictY != 0) {
             for (int y = 0; y < restrictY; y++) {
                 field[width-1][y].type = PointType.END;
@@ -225,7 +212,7 @@ public class Graph {
         while (!queue.isEmpty()) {
             Point p = queue.poll();
             p.visited = true;
-            for (Point neighbor : p.getNeighbors()) {
+            for (Point neighbor : getNeighbors(p)) {
                 int d = p.distance + getDifference(neighbor.x, neighbor.y);
                 if (!neighbor.visited) {
                     neighbor.distance = p.distance + getDifference(neighbor.x, neighbor.y);
@@ -282,7 +269,7 @@ public class Graph {
         while (!stack.empty()) {
             Point p = stack.pop();
             setEmpty(p.x, p.y, maskBuff);
-            for (Point neighbor : p.getNeighbors()) {
+            for (Point neighbor : getNeighbors(p)) {
                 if (!neighbor.visited && neighbor.type != PointType.PATH) {
                     neighbor.visited = true;
                     stack.push(neighbor);
