@@ -1,6 +1,4 @@
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.util.*;
@@ -9,13 +7,15 @@ public class TextureSynthesizer {
     static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
     private Mat inputTexture;
-    private int resultWidth = 256;
-    private int resultHeight = 256;
+    private int resultWidth = 750;
+    private int resultHeight = 750;
     private Mat outputTexture;
     static int blockSide = 50;
-    private int mergeLength = blockSide / 3;
+    private int mergeLength = 15;
+    private int stepSize = 1;
     private double tolerance = 0.1;
     private List<Mat> blocks = new ArrayList<>();
+    // TODO: random seed
     private Random random = new Random();
 
     static boolean debug = true;
@@ -35,41 +35,47 @@ public class TextureSynthesizer {
         int width = inputTexture.width(), height = inputTexture.height();
         int xStart = 0, yStart = 0;
         for (int x = 0; xStart < width; x++) {
-            int blockWidth = Integer.min(blockSide, width - x*blockSide);
+            int blockWidth = Integer.min(blockSide, width - x*stepSize);
             if (blockWidth < mergeLength)
                 break;
 
             for (int y = 0; yStart < width; y++) {
-                int blockHeight = Integer.min(blockSide, height - y*blockSide);
+                int blockHeight = Integer.min(blockSide, height - y*stepSize);
                 if (blockHeight < mergeLength)
                     break;
 
                 Rect rectangle = new Rect(xStart, yStart, blockWidth, blockHeight);
-                Mat[] block = new Mat[4];
-                block[0] = new Mat(inputTexture, rectangle);
-                block[1] = new Mat(); block[2] = new Mat(); block[3] = new Mat();
-                Core.rotate(block[0], block[1], Core.ROTATE_90_COUNTERCLOCKWISE);
-                Core.rotate(block[1], block[2], Core.ROTATE_90_COUNTERCLOCKWISE);
-                Core.rotate(block[2], block[3], Core.ROTATE_90_COUNTERCLOCKWISE);
-                blocks.addAll(Arrays.asList(block));
+                Mat block = new Mat(inputTexture, rectangle);
 
-                yStart +=blockSide;
+                if (block.width() == blockSide && block.height() == blockSide)
+                    blocks.add(block);
+
+                yStart += stepSize;
             }
             yStart = 0;
-            xStart += blockSide;
+            xStart += stepSize;
         }
     }
 
+    private void drawDebugBlocks() {
+        Mat blocksImage = new Mat(blocks.get(0).height(), blocks.size()*(blockSide+3), inputTexture.type());
+        for (int i = 0; i < blocks.size(); i++) {
+            Rect r = new Rect(i*(blockSide+3), 0, blockSide, blockSide);
+            blocks.get(i).copyTo(blocksImage.submat(r));
+        }
+        Imgcodecs.imwrite("blocks.jpg", blocksImage);
+    }
+
     private Mat synthesize() {
-        inputTexture = Imgcodecs.imread("textures/cells.jpg");
+        inputTexture = Imgcodecs.imread("textures/apples.jpg");
         outputTexture = new Mat(resultHeight, resultWidth, inputTexture.type());
+        splitInputImage();
         if (debug) {
             debugMask = new Mat(resultHeight, resultWidth, inputTexture.type());
             debugCutPath = new Mat(resultHeight, resultWidth, inputTexture.type());
+            drawDebugBlocks();
         }
-        splitInputImage();
 
-        // TODO: print percentage
         int x = 0, y = 0;
         int[] newXY = new int[] {0, 0};
         while (newXY[0] != resultWidth || newXY[1] != resultHeight) {
@@ -79,8 +85,8 @@ public class TextureSynthesizer {
             if (x == resultWidth) {
                 y = newXY[1];
                 x = 0;
+                System.out.println("" + (double)y*100/resultHeight + "%");
             }
-            System.out.println("y: " + y);
         }
 
         return outputTexture;
@@ -109,7 +115,7 @@ public class TextureSynthesizer {
 
         ArrayList<Mat> pickList = new ArrayList<>();
         double threshold = queue.peek().diffNorm;
-        threshold = (int)((1.0f + tolerance) * threshold);
+        threshold = (1.0f + tolerance) * threshold;
         while (!queue.isEmpty()) {
             DiffPair d = queue.poll();
             if (d.diffNorm <= threshold) {
@@ -122,29 +128,29 @@ public class TextureSynthesizer {
         return pickList.get(random.nextInt(pickList.size()));
     }
 
+
     private double calcDiff(int imgX, int imgY, Mat block) {
+        double norm;
         if (imgY > mergeLength && imgX > mergeLength) {
             block = limitBlock(imgX - mergeLength, imgY - mergeLength, block);
             Rect hImgRect = new Rect(imgX - mergeLength, imgY - mergeLength, block.width(), mergeLength),
                     hBlockRect = new Rect(0, 0, block.width(), mergeLength),
-                    vImgRect = new Rect(imgX - mergeLength, imgY - mergeLength, mergeLength, block.height()),
-                    vBlockRect = new Rect(0, 0, mergeLength, block.height());
+                    vImgRect = new Rect(imgX - mergeLength, imgY, mergeLength, block.height() - mergeLength),
+                    vBlockRect = new Rect(0, mergeLength, mergeLength, block.height() - mergeLength);
             Mat hImg = new Mat(outputTexture, hImgRect),
                     hBlock = new Mat(block, hBlockRect),
                     vImg = new Mat(outputTexture, vImgRect),
                     vBlock = new Mat(block, vBlockRect);
 
-            double norm = Core.norm(hImg, hBlock, Core.NORM_L2);
-            norm += Core.norm(vImg, vBlock, Core.NORM_L2);
-
-            return norm;
+            norm = Core.norm(hImg, hBlock, Core.NORM_L2SQR);
+            norm += Core.norm(vImg, vBlock, Core.NORM_L2SQR);
         } else if (imgY > mergeLength) {
             block = limitBlock(imgX, imgY - mergeLength, block);
             Rect hImgRect = new Rect(imgX, imgY - mergeLength, block.width(), mergeLength),
                     hBlockRect = new Rect(0, 0, block.width(), mergeLength);
             Mat hImg = new Mat(outputTexture, hImgRect),
                     hBlock = new Mat(block, hBlockRect);
-            return Core.norm(hImg, hBlock, Core.NORM_L2);
+            norm = Core.norm(hImg, hBlock, Core.NORM_L2SQR);
         } else if (imgX > mergeLength) {
             block = limitBlock(imgX - mergeLength, imgY, block);
             Rect vImgRect = new Rect(imgX - mergeLength, imgY, mergeLength, block.height()),
@@ -152,10 +158,12 @@ public class TextureSynthesizer {
             Mat vImg = new Mat(outputTexture, vImgRect),
                     vBlock = new Mat(block,vBlockRect);
 
-            return Core.norm(vImg, vBlock, Core.NORM_L2);
+            norm = Core.norm(vImg, vBlock, Core.NORM_L2SQR);
+        } else {
+            norm = 1.0;
         }
 
-        return 0.0;
+        return norm;
     }
 
     private Mat limitBlock(int x, int y, Mat block) {

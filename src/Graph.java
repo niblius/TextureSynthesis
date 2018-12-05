@@ -137,20 +137,18 @@ public class Graph {
     }
 
     private void setupStartEnd(PriorityQueue<Point> queue) {
-        // TODO: starts from 1 because 0,0 is flood fill start point
-        // TODO: remove edges from path search, otherwise filling won't work correctly
         if (restrictY != 0) {
-            for (int y = 0; y < restrictY; y++) {
+            for (int y = 1; y < restrictY; y++) {
                 field[width-1][y].type = PointType.END;
             }
         } else {
-            for (int x = 0; x < restrictX; x++) {
-                field[x][0].type = PointType.END;
+            for (int x = 1; x < restrictX; x++) {
+                field[x][1].type = PointType.END;
             }
         }
 
         if (restrictX != 0) {
-            for (int x = 0; x < restrictX; x++) {
+            for (int x = 1; x < restrictX; x++) {
                 Point p = field[x][height - 1];
                 p.type = PointType.START;
                 p.distance = getDifference(p.x, p.y);
@@ -158,8 +156,8 @@ public class Graph {
                 queue.add(p);
             }
         } else {
-            for (int y = 0; y < restrictY; y++) {
-                Point p = field[0][y];
+            for (int y = 1; y < restrictY; y++) {
+                Point p = field[1][y];
                 p.type = PointType.START;
                 p.distance = getDifference(p.x, p.y);
                 p.visited = true;
@@ -172,7 +170,7 @@ public class Graph {
         Point end = null;
         int min = Integer.MAX_VALUE;
         if (restrictY != 0) {
-            for (int y = 0; y < restrictY; y++) {
+            for (int y = 1; y < restrictY; y++) {
                 Point p = field[width-1][y];
                 if (p.distance < min) {
                     min = p.distance;
@@ -180,8 +178,8 @@ public class Graph {
                 }
             }
         } else {
-            for (int x = 0; x < restrictX; x++) {
-                Point p = field[x][0];
+            for (int x = 1; x < restrictX; x++) {
+                Point p = field[x][1];
                 if (p.distance < min) {
                     min = p.distance;
                     end = p;
@@ -214,15 +212,17 @@ public class Graph {
             p.visited = true;
             for (Point neighbor : getNeighbors(p)) {
                 int d = p.distance + getDifference(neighbor.x, neighbor.y);
-                if (!neighbor.visited) {
-                    neighbor.distance = p.distance + getDifference(neighbor.x, neighbor.y);
-                    neighbor.prev = p;
-                    queue.add(neighbor);
-                } else if (neighbor.distance > d) {
-                    queue.remove(neighbor);
-                    neighbor.distance = d;
-                    neighbor.prev = p;
-                    queue.add(neighbor);
+                if (neighbor.x != 0 && neighbor.y != 0) {
+                    if (!neighbor.visited) {
+                        neighbor.distance = p.distance + getDifference(neighbor.x, neighbor.y);
+                        neighbor.prev = p;
+                        queue.add(neighbor);
+                    } else if (neighbor.distance > d) {
+                        queue.remove(neighbor);
+                        neighbor.distance = d;
+                        neighbor.prev = p;
+                        queue.add(neighbor);
+                    }
                 }
             }
         }
