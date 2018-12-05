@@ -110,7 +110,6 @@ public class Graph {
             for (int x = 0; x < restrictX; x++) {
                 for (int y = 0; y < height; y++) {
                     resetPoint(field[x][y]);
-                    //field[x][y] = new Point(x, y);
                 }
             }
         }
@@ -119,7 +118,6 @@ public class Graph {
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < restrictY; y++) {
                     resetPoint(field[x][y]);
-                    // field[x][y] = new Point(x, y);
                 }
             }
         }

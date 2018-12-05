@@ -6,28 +6,102 @@ import java.util.*;
 public class TextureSynthesizer {
     static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
-    private Mat inputTexture;
     private int resultWidth = 750;
     private int resultHeight = 750;
-    private Mat outputTexture;
-    static int blockSide = 50;
     private int mergeLength = 15;
     private int stepSize = 1;
     private double tolerance = 0.1;
-    private List<Mat> blocks = new ArrayList<>();
-    // TODO: random seed
+    private String inputFilename = "textures/apples.jpg";
     private Random random = new Random();
-
     static boolean debug = true;
+    static int blockSide = 50;
+
+    public TextureSynthesizer(int resultWidth,
+                              int resultHeight,
+                              int mergeLength,
+                              int stepSize,
+                              double tolerance,
+                              String inputFilename,
+                              Random random,
+                              boolean debug,
+                              int blockSide) {
+        this.resultWidth = resultWidth;
+        this.resultHeight = resultHeight;
+        this.mergeLength = mergeLength;
+        this.stepSize = stepSize;
+        this.tolerance = tolerance;
+        this.inputFilename = inputFilename;
+        this.random = random;
+        TextureSynthesizer.debug = debug;
+        TextureSynthesizer.blockSide = blockSide;
+    }
+
+    public TextureSynthesizer() {
+        long rgenseed = System.currentTimeMillis();
+        random.setSeed(rgenseed);
+        System.out.println("Random number generator seed is " + rgenseed);
+    }
+
+    private Mat outputTexture;
+    private Mat inputTexture;
+    private List<Mat> blocks = new ArrayList<>();
     private Mat debugMask;
     private Mat debugCutPath;
 
     public static void main(String[] args) {
-        TextureSynthesizer ts = new TextureSynthesizer();
+        System.out.println("Usage: \n" +
+                "synthesize width height merge_length step_size tolerance filename seed debug patch_size\n" +
+                "Example: ./synthesize 500 500 15 1 0.1 \"texture/apples.jpg\" 0 y 50\n" +
+                "Or just: run and application will run with default parameters specified in example above.\n" +
+                "Parameter constraints and description: \n" +
+                "width - width of resulting image, should be greater 2*merge_length\n" +
+                "height - height of resulting image, should be greater 2*merge_length\n" +
+                "merge_length - number of overlaping pixels, should be greater than 2\n" +
+                "step_size - distance between patches blocks, used during patch generation. Suggested to use 1.\n" +
+                "tolerance - randomness of the texture. Suggested to use 0.1 or greater.\n" +
+                "inputFilename - address of the input texture, example: \"textures/apples.jpg\" \n" +
+                "random - seed for a random generator or 0 if none\n" +
+                "debug - \"y\" or \"n\" to generate mask.jpg, path.jpg, blocks.jpg\n" +
+                "path_size - size of the patch, should be greater than 2*merge_length");
+        TextureSynthesizer ts;
+        if (args.length == 0)
+            ts = new TextureSynthesizer();
+        else {
+            int _resultWidth = Integer.parseInt(args[0]);
+            int _resultHeight = Integer.parseInt(args[1]);
+            int _mergeLength = Integer.parseInt(args[2]);
+            int _stepSize = Integer.parseInt(args[3]);
+            double _tolerance = Double.parseDouble(args[4]);
+            String _inputFilename = args[5];
+            boolean useSeed = !args[6].equals("n");
+            Random _rgen;
+            long _seed;
+            if (useSeed) {
+                _seed = Long.parseLong(args[6]);
+                _rgen = new Random(_seed);
+            } else {
+                _seed = System.currentTimeMillis();
+                _rgen = new Random(_seed);
+            }
+            System.out.println("Random number generator seed is " + _seed);
+            boolean _debug = args[7].equals("y");
+            int _blockSide = Integer.parseInt(args[8]);
+            ts = new TextureSynthesizer(
+                    _resultWidth,
+                    _resultHeight,
+                    _mergeLength,
+                    _stepSize,
+                    _tolerance,
+                    _inputFilename,
+                    _rgen,
+                    _debug,
+                    _blockSide);
+        }
+
         Imgcodecs.imwrite("output.jpg", ts.synthesize());
         if (debug) {
             Imgcodecs.imwrite("mask.jpg", ts.debugMask);
-            Imgcodecs.imwrite("path2.jpg", ts.debugCutPath);
+            Imgcodecs.imwrite("path.jpg", ts.debugCutPath);
         }
     }
 
@@ -67,7 +141,7 @@ public class TextureSynthesizer {
     }
 
     private Mat synthesize() {
-        inputTexture = Imgcodecs.imread("textures/apples.jpg");
+        inputTexture = Imgcodecs.imread(inputFilename);
         outputTexture = new Mat(resultHeight, resultWidth, inputTexture.type());
         splitInputImage();
         if (debug) {
@@ -85,7 +159,7 @@ public class TextureSynthesizer {
             if (x == resultWidth) {
                 y = newXY[1];
                 x = 0;
-                System.out.println("" + (double)y*100/resultHeight + "%");
+                System.out.printf("%.2f%%\n", (double)y*100/resultHeight);
             }
         }
 
