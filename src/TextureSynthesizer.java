@@ -51,7 +51,7 @@ public class TextureSynthesizer {
     public static void main(String[] args) {
         System.out.println("Usage: \n" +
                 "synthesize width height merge_length step_size tolerance filename seed debug patch_size\n" +
-                "Example: ./synthesize 500 500 15 1 0.1 \"texture/apples.jpg\" 0 y 50\n" +
+                "Example: ./synthesize 500 500 15 1 0.1 \"textures/apples.jpg\" 0 y 50\n" +
                 "Or just: run and application will run with default parameters specified in example above.\n" +
                 "Parameter constraints and description: \n" +
                 "width - width of resulting image, should be greater 2*merge_length\n" +
@@ -60,7 +60,7 @@ public class TextureSynthesizer {
                 "step_size - distance between patches blocks, used during patch generation. Suggested to use 1.\n" +
                 "tolerance - randomness of the texture. Suggested to use 0.1 or greater.\n" +
                 "inputFilename - address of the input texture, example: \"textures/apples.jpg\" \n" +
-                "random - seed for a random generator or 0 if none\n" +
+                "random - seed for a random generator or \"n\" if none\n" +
                 "debug - \"y\" or \"n\" to generate mask.jpg, path.jpg, blocks.jpg\n" +
                 "path_size - size of the patch, should be greater than 2*merge_length");
         TextureSynthesizer ts;

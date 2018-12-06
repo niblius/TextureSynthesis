@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="/home/nexiten/Projects/TexSyn/opencv-3.4.4/build/bin/opencv-344.jar" sourcepath="/home/nexiten/Projects/TexSyn/opencv-3.4.4/build/bin/opencv-344.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/home/nexiten/Projects/TexSyn/opencv-3.4.4/build/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="out/production/TextureSynthesis"/>
+</classpath>
